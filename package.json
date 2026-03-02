@@ -1,0 +1,48 @@
+{
+  "name": "stack-nav",
+  "version": "1.0.0",
+  "description": "Ultra-lightweight state-based router for React with strict TypeScript support.",
+  "type": "module",
+  "author": {
+    "name": "SirCesarium",
+    "url": "https://github.com/SirCesarium"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/SirCesarium/stack-nav"
+  },
+  "homepage": "https://www.npmjs.com/package/stack-nav",
+  "license": "MIT",
+  "main": "./dist/index.cjs",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js",
+      "require": "./dist/index.cjs"
+    }
+  },
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "dev": "tsup src/index.ts --watch",
+    "build": "tsup",
+    "test": "bun test --dom",
+    "lint": "tsc --noEmit"
+  },
+  "devDependencies": {
+    "@testing-library/react": "^16.3.2",
+    "@testing-library/user-event": "^14.6.1",
+    "@types/bun": "latest",
+    "@types/react": "^19.2.14",
+    "@types/react-dom": "^19.2.3",
+    "happy-dom": "^20.7.0",
+    "tsup": "^8.5.1"
+  },
+  "peerDependencies": {
+    "react": "^18.0.0 || ^19.0.0",
+    "react-dom": "^18.0.0 || ^19.0.0"
+  }
+}
