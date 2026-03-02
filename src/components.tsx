@@ -1,4 +1,4 @@
-import React from 'react';
+import React from "react";
 import type { BaseRoutes } from "./types";
 
 interface RouterViewProps<R extends BaseRoutes> {
@@ -9,15 +9,18 @@ interface RouterViewProps<R extends BaseRoutes> {
   fallback?: React.ReactNode;
 }
 
-export function RouterView<R extends BaseRoutes>({ 
-  currentScreen, 
-  screens, 
-  fallback = null 
+export function RouterView<R extends BaseRoutes>({
+  currentScreen,
+  screens,
+  fallback = null,
 }: RouterViewProps<R>) {
   const Component = screens[currentScreen];
   if (!Component) return <>{fallback}</>;
 
-  if (typeof Component === 'function' && !(Component.prototype instanceof React.Component)) {
+  if (
+    typeof Component === "function" &&
+    !(Component.prototype instanceof React.Component)
+  ) {
     const RenderFn = Component as () => React.ReactNode;
     return <>{RenderFn()}</>;
   }

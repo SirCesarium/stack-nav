@@ -1,23 +1,27 @@
 import { useSyncExternalStore, useMemo } from "react";
 import { createRouterStore } from "./core";
-import type { BaseRoutes, RouterActions, NavigationState } from "./types";
+import type { BaseRoutes, NavigationHook } from "./types";
 
-export function createStackRouter<R extends BaseRoutes>(initialScreen: keyof R) {
+export function createStackRouter<R extends BaseRoutes>(
+  initialScreen: keyof R,
+): NavigationHook<R> {
   const store = createRouterStore<R>(initialScreen);
 
-  return function useNavigation<T extends keyof R>(): NavigationState<R> & 
-    RouterActions<R> & { routeParams: R[T] } {
+  return function useNavigation<T extends keyof R>() {
     const state = useSyncExternalStore(store.subscribe, store.getSnapshot);
 
-    const actions = useMemo(() => ({
-      navigate: (screen: any, params?: any) => store.navigate(screen, params),
-      goBack: () => store.goBack(),
-    }), []);
+    const actions = useMemo(
+      () => ({
+        navigate: (screen: any, params?: any) => store.navigate(screen, params),
+        goBack: () => store.goBack(),
+      }),
+      [],
+    );
 
-    return { 
-      ...state, 
-      ...actions, 
-      routeParams: state.params as R[T] 
+    return {
+      ...state,
+      ...actions,
+      routeParams: state.params as R[T],
     };
   };
 }
