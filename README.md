@@ -2,7 +2,6 @@
 
 [![CI](https://github.com/SirCesarium/stack-nav/actions/workflows/ci.yml/badge.svg)](https://github.com/SirCesarium/stack-nav/actions)
 [![npm version](https://img.shields.io/npm/v/stack-nav.svg)](https://www.npmjs.com/package/stack-nav)
-[![npm bundle size](https://img.shields.io/badge/npm-v1.1.0-blue)](https://www.npmjs.com/package/stack-nav)
 [![license](https://img.shields.io/badge/license-MIT-blue.svg)](https://github.com/SirCesarium/stack-nav/blob/main/LICENSE)
 
 Ultra-lightweight (<1KB), headless state-based router for React with strict TypeScript support.
