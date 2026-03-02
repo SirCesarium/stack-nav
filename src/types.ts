@@ -17,7 +17,10 @@ export interface RouterActions<R extends BaseRoutes> {
   navigate: <T extends keyof R>(...args: NavigateArgs<R, T>) => void;
   goBack: () => void;
 }
-
-export type NavigationHook<R extends BaseRoutes> = <
-  T extends keyof R,
->() => NavigationState<R> & RouterActions<R> & { routeParams: R[T] };
+export type NavigationHook<R extends BaseRoutes> = <T extends keyof R>(
+  screen?: T,
+) => {
+  currentScreen: keyof R;
+  history: (keyof R)[];
+  params: R[T];
+} & RouterActions<R>;
