@@ -1,0 +1,9 @@
+src/
+test/
+node_modules/
+eslint.config.js
+.prettierrc
+tsconfig.json
+tsup.config.ts
+bun.lock
+bunfig.toml
