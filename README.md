@@ -46,7 +46,16 @@ const App = () => {
       currentScreen={currentScreen}
       screens={{
         home: () => <button onClick={() => navigate("profile", { id: 1 })}>Go</button>,
-        profile: () => <h1>Profile View</h1>
+        profile: () => {
+            const { params } = useNav("profile");
+
+            return (
+                <>
+                    <h1>Profile View</h1>
+                    <p>Your user ID: {params.id}</p>
+                </>
+            )
+        }
       }}
       fallback={<div>404</div>}
     />
@@ -56,7 +65,7 @@ const App = () => {
 
 ## API
 
-- `useNav()`: Returns `{ currentScreen, routeParams, navigate, goBack, history }`.
+- `useNav("screen name")`: Returns `{ currentScreen, params, navigate, goBack, history }`. (param types auto inferred by the screen name)
 
 - `<RouterView />`: Helper to render the active screen mapping.
 

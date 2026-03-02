@@ -32,11 +32,11 @@ describe("stack-nav", () => {
 
   test("navigates to a new screen with parameters", async () => {
     const App = () => {
-      const { currentScreen, routeParams, navigate } = useNav<"profile">();
+      const { currentScreen, params, navigate } = useNav<"profile">();
       return (
         <div>
           <span data-testid="screen">{currentScreen}</span>
-          <span data-testid="params">{routeParams?.id}</span>
+          <span data-testid="params">{params.id}</span>
           <button onClick={() => navigate("profile", { id: 101 })}>Go</button>
         </div>
       );
@@ -83,10 +83,10 @@ describe("stack-nav", () => {
     expect(screen.getByTestId("screen").textContent).toBe("profile");
   });
 
-  test("ensures routeParams is an empty object instead of null", () => {
+  test("ensures params is an empty object instead of null", () => {
     const App = () => {
-      const { routeParams } = useNav();
-      return <div>{JSON.stringify(routeParams)}</div>;
+      const { params } = useNav();
+      return <div>{JSON.stringify(params)}</div>;
     };
     render(<App />);
     expect(screen.getByText("{}")).toBeTruthy();

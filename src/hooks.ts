@@ -19,9 +19,10 @@ export function createStackRouter<R extends BaseRoutes>(
     );
 
     return {
-      ...state,
+      currentScreen: state.currentScreen,
+      history: state.history,
       ...actions,
-      routeParams: state.params as R[T],
+      params: state.params as R[T],
     };
   };
 }
