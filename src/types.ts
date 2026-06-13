@@ -26,5 +26,5 @@ export type NavigationHook<R extends BaseRoutes> = <T extends keyof R>(
 ) => {
   currentScreen: keyof R;
   history: HistoryEntry<R>[];
-  params: R[T];
+  params: R[T] | Record<string, never>;
 } & RouterActions<R>;

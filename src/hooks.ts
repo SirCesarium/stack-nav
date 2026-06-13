@@ -23,7 +23,7 @@ export function createStackRouter<R extends BaseRoutes>(
       currentScreen: state.currentScreen,
       history: state.history,
       ...actions,
-      params: state.params as R[T],
+      params: state.params as R[T] | Record<string, never>,
     };
   };
 }
