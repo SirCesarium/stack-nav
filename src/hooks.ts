@@ -12,7 +12,8 @@ export function createStackRouter<R extends BaseRoutes>(
 
     const actions = useMemo(
       () => ({
-        navigate: (screen: any, params?: any) => store.navigate(screen, params),
+        navigate: <S extends keyof R>(screen: S, params?: R[S]) =>
+          store.navigate(screen, params),
         goBack: () => store.goBack(),
       }),
       [],

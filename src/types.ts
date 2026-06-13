@@ -1,4 +1,4 @@
-export type BaseRoutes = Record<string, any>;
+export type BaseRoutes = Record<string, unknown>;
 
 export type NavigateArgs<
   R extends BaseRoutes,
@@ -7,10 +7,14 @@ export type NavigateArgs<
   ? [screen: T]
   : [screen: T, params: R[T]];
 
+export type HistoryEntry<R extends BaseRoutes> = {
+  [K in keyof R]: { screen: K; params: R[K] }
+}[keyof R];
+
 export interface NavigationState<R extends BaseRoutes> {
   currentScreen: keyof R;
-  params: any;
-  history: (keyof R)[];
+  params: Record<string, unknown>;
+  history: HistoryEntry<R>[];
 }
 
 export interface RouterActions<R extends BaseRoutes> {
@@ -21,6 +25,6 @@ export type NavigationHook<R extends BaseRoutes> = <T extends keyof R>(
   screen?: T,
 ) => {
   currentScreen: keyof R;
-  history: (keyof R)[];
+  history: HistoryEntry<R>[];
   params: R[T];
 } & RouterActions<R>;

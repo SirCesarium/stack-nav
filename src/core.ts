@@ -1,4 +1,4 @@
-import type { NavigationState, BaseRoutes } from "./types";
+import type { NavigationState, BaseRoutes, HistoryEntry } from "./types";
 
 export function createRouterStore<R extends BaseRoutes>(
   initialScreen: keyof R,
@@ -18,11 +18,20 @@ export function createRouterStore<R extends BaseRoutes>(
 
   const getSnapshot = () => state;
 
-  const navigate = (screen: any, params?: any, isExternal = false) => {
+  const navigate = <T extends keyof R>(
+    screen: T,
+    params?: R[T],
+    isExternal = false,
+  ) => {
+    const entry: HistoryEntry<R> = {
+      screen: state.currentScreen,
+      params: state.params as R[typeof state.currentScreen],
+    } as HistoryEntry<R>;
+
     state = {
-      history: [...state.history, state.currentScreen],
+      history: [...state.history, entry],
       currentScreen: screen,
-      params: params ?? {},
+      params: (params ?? {}) as Record<string, unknown>,
     };
 
     if (!isExternal && typeof window !== "undefined") {
@@ -35,12 +44,12 @@ export function createRouterStore<R extends BaseRoutes>(
   const goBack = (isExternal = false) => {
     if (state.history.length === 0) return;
     const newHistory = [...state.history];
-    const previous = newHistory.pop()!;
+    const entry = newHistory.pop()!;
 
     state = {
-      currentScreen: previous,
+      currentScreen: entry.screen,
       history: newHistory,
-      params: {},
+      params: entry.params as Record<string, unknown>,
     };
 
     if (!isExternal && typeof window !== "undefined") {
@@ -57,7 +66,7 @@ export function createRouterStore<R extends BaseRoutes>(
 
     window.addEventListener("popstate", (event) => {
       if (event.state && event.state.screen) {
-        navigate(event.state.screen, event.state.params, true);
+        navigate(event.state.screen, event.state.params as any, true);
       } else {
         goBack(true);
       }
