@@ -1,4 +1,4 @@
-import { expect, test, describe, beforeEach, afterEach } from "bun:test";
+import { expect, test, describe, beforeEach, afterEach, vi } from "bun:test";
 import { render, screen, act, cleanup } from "@testing-library/react";
 import React from "react";
 import { createStackRouter, RouterView } from "../src";
@@ -125,5 +125,56 @@ describe("stack-nav", () => {
 
     render(<App />);
     expect(screen.getByTestId("fallback")).toBeTruthy();
+  });
+
+  test("resetNavigate clears history and navigates to new screen", async () => {
+    const App = () => {
+      const { currentScreen, history, navigate, resetNavigate } = useNav();
+      return (
+        <div>
+          <span data-testid="screen">{currentScreen}</span>
+          <span data-testid="history-length">{history.length}</span>
+          <button onClick={() => navigate("profile", { id: 1 })}>Go Profile</button>
+          <button onClick={() => resetNavigate("home")}>Reset to Home</button>
+        </div>
+      );
+    };
+
+    render(<App />);
+
+    await act(async () => {
+      screen.getByText("Go Profile").click();
+    });
+
+    expect(screen.getByTestId("screen").textContent).toBe("profile");
+    expect(screen.getByTestId("history-length").textContent).toBe("1");
+
+    await act(async () => {
+      screen.getByText("Reset to Home").click();
+    });
+
+    expect(screen.getByTestId("screen").textContent).toBe("home");
+    expect(screen.getByTestId("history-length").textContent).toBe("0");
+  });
+
+  test("resetNavigate replaces browser history state", async () => {
+    const replaceStateSpy = vi.spyOn(window.history, "replaceState");
+
+    const App = () => {
+      const { resetNavigate } = useNav();
+      return <button onClick={() => resetNavigate("profile", { id: 42 })}>Reset</button>;
+    };
+
+    render(<App />);
+
+    await act(async () => {
+      screen.getByText("Reset").click();
+    });
+
+    expect(replaceStateSpy).toHaveBeenCalledWith(
+      { screen: "profile", params: { id: 42 } },
+      "",
+    );
+    replaceStateSpy.mockRestore();
   });
 });

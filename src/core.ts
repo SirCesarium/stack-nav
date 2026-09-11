@@ -59,6 +59,24 @@ export function createRouterStore<R extends BaseRoutes>(
     listeners.forEach((l) => l());
   };
 
+  const resetNavigate = <T extends keyof R>(
+    screen: T,
+    params?: R[T],
+    isExternal = false,
+  ) => {
+    state = {
+      history: [],
+      currentScreen: screen,
+      params: (params ?? {}) as Record<string, unknown>,
+    };
+
+    if (!isExternal && typeof window !== "undefined") {
+      window.history.replaceState({ screen, params }, "");
+    }
+
+    listeners.forEach((l) => l());
+  };
+
   if (typeof window !== "undefined") {
     if (!window.history.state) {
       window.history.replaceState({ screen: initialScreen, params: {} }, "");
@@ -73,5 +91,5 @@ export function createRouterStore<R extends BaseRoutes>(
     });
   }
 
-  return { subscribe, getSnapshot, navigate, goBack };
+  return { subscribe, getSnapshot, navigate, goBack, resetNavigate };
 }

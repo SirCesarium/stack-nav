@@ -14,6 +14,8 @@ export function createStackRouter<R extends BaseRoutes>(
       () => ({
         navigate: <S extends keyof R>(screen: S, params?: R[S]) =>
           store.navigate(screen, params),
+        resetNavigate: <S extends keyof R>(screen: S, params?: R[S]) =>
+          store.resetNavigate(screen, params),
         goBack: () => store.goBack(),
       }),
       [],
