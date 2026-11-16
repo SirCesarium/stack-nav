@@ -4,13 +4,15 @@ import type {
   BaseRoutes,
   NavigationHook,
   RouterActions,
+  RouterOptions,
   ScreenParams,
 } from "./types";
 
 export function createStackRouter<R extends BaseRoutes>(
   initialScreen: keyof R,
+  options: RouterOptions = {},
 ): NavigationHook<R> {
-  const store = createRouterStore<R>(initialScreen);
+  const store = createRouterStore<R>(initialScreen, options);
 
   const actions: RouterActions<R> = {
     navigate: store.navigate,

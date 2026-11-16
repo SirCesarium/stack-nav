@@ -3,6 +3,7 @@ import type {
   HistoryEntry,
   NavigateArgs,
   NavigationState,
+  RouterOptions,
 } from "./types";
 
 const SNAPSHOT_VERSION = 2;
@@ -82,6 +83,7 @@ function readBounds<R extends BaseRoutes>(value: unknown): EntryBounds | null {
 
 export function createRouterStore<R extends BaseRoutes>(
   initialScreen: keyof R,
+  options: RouterOptions = {},
 ) {
   const listeners = new Set<() => void>();
 
@@ -195,6 +197,11 @@ export function createRouterStore<R extends BaseRoutes>(
 
   const goBack = () => {
     if (typeof window === "undefined") return;
+
+    if (index === 0 && options.onRootBack) {
+      options.onRootBack();
+      return;
+    }
 
     window.history.back();
   };

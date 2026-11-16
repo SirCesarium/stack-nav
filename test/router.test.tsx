@@ -80,6 +80,28 @@ describe("stack-nav", () => {
     back.mockRestore();
   });
 
+  test("goBack calls onRootBack instead of the browser at the root", async () => {
+    const back = vi.spyOn(window.history, "back").mockImplementation(() => {});
+    const onRootBack = vi.fn();
+    const useShellNav = createStackRouter<Routes>("home", { onRootBack });
+
+    const App = () => {
+      const { goBack } = useShellNav();
+      return <button onClick={goBack}>Back</button>;
+    };
+
+    render(<App />);
+
+    await act(async () => {
+      screen.getByRole("button").click();
+    });
+
+    expect(onRootBack).toHaveBeenCalledTimes(1);
+    expect(back).not.toHaveBeenCalled();
+
+    back.mockRestore();
+  });
+
   test("browser back and forward move through the stack without pushing", async () => {
     const pushState = vi.spyOn(window.history, "pushState");
 

@@ -51,6 +51,18 @@ export interface NavigationState<R extends BaseRoutes> {
 }
 
 /**
+ * Options accepted by `createStackRouter`.
+ */
+export interface RouterOptions {
+  /**
+   * Called by `goBack` when the app is already on its first screen, so a
+   * desktop shell or native container can close itself instead of leaving the
+   * page.
+   */
+  onRootBack?: () => void;
+}
+
+/**
  * Navigation actions returned by `useNav`.
  */
 export interface RouterActions<R extends BaseRoutes> {
@@ -60,7 +72,10 @@ export interface RouterActions<R extends BaseRoutes> {
   /** Clears the stack and starts over at `screen`. */
   reset: <T extends keyof R>(...args: NavigateArgs<R, T>) => void;
 
-  /** Moves to the previous screen, or leaves the app at the root. */
+  /**
+   * Moves to the previous screen. At the root it calls `onRootBack` when
+   * provided, otherwise it delegates to the browser's back button.
+   */
   goBack: () => void;
 }
 
