@@ -121,6 +121,14 @@ export function createRouterStore<R extends BaseRoutes>(
 
   let state = build();
 
+  // Hydration must start from what the server rendered, not from the restored
+  // stack: the browser entry is invisible to the server render.
+  const serverState: NavigationState<R> = {
+    currentScreen: initialScreen,
+    params: {},
+    history: [],
+  };
+
   const writeSnapshot = (mode: "push" | "replace") => {
     if (typeof window === "undefined") return;
 
@@ -143,6 +151,8 @@ export function createRouterStore<R extends BaseRoutes>(
   }
 
   const getSnapshot = () => state;
+
+  const getServerSnapshot = () => serverState;
 
   const notify = () => {
     state = build();
@@ -266,5 +276,5 @@ export function createRouterStore<R extends BaseRoutes>(
     };
   };
 
-  return { subscribe, getSnapshot, navigate, reset, goBack };
+  return { subscribe, getSnapshot, getServerSnapshot, navigate, reset, goBack };
 }

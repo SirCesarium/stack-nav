@@ -1,5 +1,6 @@
 import { expect, test, describe, beforeEach, afterEach, vi } from "bun:test";
 import { render, screen, act, cleanup } from "@testing-library/react";
+import { renderToString } from "react-dom/server";
 import React from "react";
 import { createStackRouter, RouterView } from "../src";
 
@@ -395,5 +396,25 @@ describe("stack-nav", () => {
     expect(snapshot.entries[snapshot.index].params).toEqual({ id: 42 });
 
     replaceState.mockRestore();
+  });
+
+  test("renders the initial screen on the server", () => {
+    const useServerNav = createStackRouter<Routes>("home");
+
+    const App = () => {
+      const { currentScreen, history } = useServerNav();
+
+      return (
+        <div>
+          <span data-testid="screen">{currentScreen}</span>
+          <span data-testid="depth">{history.length}</span>
+        </div>
+      );
+    };
+
+    const html = renderToString(<App />);
+
+    expect(html).toContain("home");
+    expect(html).toContain(">0<");
   });
 });

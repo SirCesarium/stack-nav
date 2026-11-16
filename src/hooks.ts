@@ -21,7 +21,11 @@ export function createStackRouter<R extends BaseRoutes>(
   };
 
   return function useNavigation<T extends keyof R = never>(_screen?: T) {
-    const state = useSyncExternalStore(store.subscribe, store.getSnapshot);
+    const state = useSyncExternalStore(
+      store.subscribe,
+      store.getSnapshot,
+      store.getServerSnapshot,
+    );
 
     return {
       currentScreen: state.currentScreen,
