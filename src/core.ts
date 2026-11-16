@@ -215,16 +215,18 @@ export function createRouterStore<R extends BaseRoutes>(
   const skip = (destination: EntryBounds) => {
     if (typeof window === "undefined") return;
 
-    const position = entries[index];
+    const current = entries[index];
 
-    if (destination.seq === position.seq || skipped >= MAX_SKIPS) {
+    if (destination.seq === current.seq || skipped >= MAX_SKIPS) {
       skipped = 0;
       writeSnapshot("replace");
       return;
     }
 
+    const stepBackToCurrent = destination.seq < current.seq ? 1 : -1;
+
     skipped += 1;
-    window.history.go(destination.seq < position.seq ? -1 : 1);
+    window.history.go(stepBackToCurrent);
   };
 
   const handlePopState = (event: PopStateEvent) => {

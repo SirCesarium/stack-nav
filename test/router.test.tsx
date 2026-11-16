@@ -189,7 +189,7 @@ describe("stack-nav", () => {
     });
 
     expect(screen.getByTestId("screen").textContent).toBe("empty");
-    expect(go).toHaveBeenCalledWith(-1);
+    expect(go).toHaveBeenCalledWith(1);
 
     go.mockRestore();
   });
