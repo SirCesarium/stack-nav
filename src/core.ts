@@ -117,6 +117,25 @@ export function createRouterStore<R extends BaseRoutes>(
     };
   };
 
+  const createEntry = <T extends keyof R>(
+    screen: T,
+    params: R[T] | undefined,
+    seq: number,
+    entryEpoch: number,
+  ): StackEntry<R> => {
+    const entry: StackEntry<R> = {
+      id: nextId,
+      seq,
+      epoch: entryEpoch,
+      screen,
+      params: (params ?? {}) as Record<string, unknown>,
+    };
+
+    nextId += 1;
+
+    return entry;
+  };
+
   let state = build();
 
   const serverRenderedState: NavigationState<R> = {
@@ -157,16 +176,8 @@ export function createRouterStore<R extends BaseRoutes>(
 
   const navigate = <T extends keyof R>(...args: NavigateArgs<R, T>) => {
     const [screen, params] = args;
+    const entry = createEntry(screen, params, nextSeq, epoch);
 
-    const entry: StackEntry<R> = {
-      id: nextId,
-      seq: nextSeq,
-      epoch,
-      screen,
-      params: (params ?? {}) as Record<string, unknown>,
-    };
-
-    nextId += 1;
     nextSeq += 1;
 
     entries = [...entries.slice(0, index + 1), entry];
@@ -177,21 +188,26 @@ export function createRouterStore<R extends BaseRoutes>(
     notify();
   };
 
+  const replace = <T extends keyof R>(...args: NavigateArgs<R, T>) => {
+    const [screen, params] = args;
+    const position = entries[index];
+    const entry = createEntry(screen, params, position.seq, epoch);
+
+    entries = [...entries.slice(0, index), entry, ...entries.slice(index + 1)];
+    skipped = 0;
+
+    writeSnapshot("replace");
+    notify();
+  };
+
   const reset = <T extends keyof R>(...args: NavigateArgs<R, T>) => {
     const [screen, params] = args;
     const position = entries[index];
 
     epoch += 1;
 
-    const entry: StackEntry<R> = {
-      id: nextId,
-      seq: position.seq,
-      epoch,
-      screen,
-      params: (params ?? {}) as Record<string, unknown>,
-    };
+    const entry = createEntry(screen, params, position.seq, epoch);
 
-    nextId += 1;
     nextSeq = position.seq + 1;
     entries = [entry];
     index = 0;
@@ -274,5 +290,13 @@ export function createRouterStore<R extends BaseRoutes>(
     };
   };
 
-  return { subscribe, getSnapshot, getServerSnapshot, navigate, reset, goBack };
+  return {
+    subscribe,
+    getSnapshot,
+    getServerSnapshot,
+    navigate,
+    replace,
+    reset,
+    goBack,
+  };
 }

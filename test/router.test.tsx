@@ -63,6 +63,114 @@ describe("stack-nav", () => {
     expect(screen.getByTestId("params").textContent).toBe("101");
   });
 
+  test("replace swaps the current screen without pushing history", async () => {
+    const pushState = vi.spyOn(window.history, "pushState");
+    const replaceState = vi.spyOn(window.history, "replaceState");
+
+    const App = () => {
+      const { currentScreen, history, params, navigate, replace } = useNav();
+      return (
+        <div>
+          <span data-testid="screen">{currentScreen}</span>
+          <span data-testid="depth">{history.length}</span>
+          <span data-testid="params">{JSON.stringify(params)}</span>
+          <button onClick={() => navigate("profile", { id: 1 })}>
+            Profile
+          </button>
+          <button onClick={() => replace("profile", { id: 9 })}>Replace</button>
+        </div>
+      );
+    };
+
+    render(<App />);
+
+    await act(async () => {
+      screen.getByText("Profile").click();
+    });
+
+    pushState.mockClear();
+    replaceState.mockClear();
+
+    await act(async () => {
+      screen.getByText("Replace").click();
+    });
+
+    expect(screen.getByTestId("screen").textContent).toBe("profile");
+    expect(screen.getByTestId("depth").textContent).toBe("1");
+    expect(screen.getByTestId("params").textContent).toBe('{"id":9}');
+    expect(pushState).not.toHaveBeenCalled();
+    expect(replaceState).toHaveBeenCalled();
+
+    const snapshot = historySnapshot();
+
+    expect(snapshot.entries).toHaveLength(2);
+    expect(snapshot.entries[snapshot.index].screen).toBe("profile");
+    expect(snapshot.entries[snapshot.index].params).toEqual({ id: 9 });
+
+    pushState.mockRestore();
+    replaceState.mockRestore();
+  });
+
+  test("replace keeps earlier and later history reachable", async () => {
+    const pushState = vi.spyOn(window.history, "pushState");
+
+    const App = () => {
+      const { currentScreen, history, navigate, replace } = useNav();
+      return (
+        <div>
+          <span data-testid="screen">{currentScreen}</span>
+          <span data-testid="depth">{history.length}</span>
+          <button onClick={() => navigate("profile", { id: 1 })}>
+            Profile
+          </button>
+          <button onClick={() => navigate("empty")}>Empty</button>
+          <button onClick={() => replace("home")}>Replace</button>
+        </div>
+      );
+    };
+
+    render(<App />);
+
+    await act(async () => {
+      screen.getByText("Profile").click();
+    });
+
+    await act(async () => {
+      screen.getByText("Empty").click();
+    });
+
+    const profileState = pushState.mock.calls[0][0];
+    const emptyState = pushState.mock.calls[1][0];
+
+    await act(async () => {
+      window.dispatchEvent(
+        new PopStateEvent("popstate", { state: profileState }),
+      );
+    });
+
+    expect(screen.getByTestId("screen").textContent).toBe("profile");
+    expect(screen.getByTestId("depth").textContent).toBe("1");
+
+    await act(async () => {
+      screen.getByText("Replace").click();
+    });
+
+    expect(screen.getByTestId("screen").textContent).toBe("home");
+    expect(screen.getByTestId("depth").textContent).toBe("1");
+    expect(historySnapshot().entries).toHaveLength(3);
+
+    await act(async () => {
+      window.dispatchEvent(
+        new PopStateEvent("popstate", { state: emptyState }),
+      );
+    });
+
+    expect(screen.getByTestId("screen").textContent).toBe("empty");
+    expect(screen.getByTestId("depth").textContent).toBe("2");
+
+    pushState.mockRestore();
+  });
+
   test("goBack delegates to browser history", async () => {
     const back = vi.spyOn(window.history, "back").mockImplementation(() => {});
 

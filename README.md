@@ -95,6 +95,7 @@ export const App = () => {
 ## Navigation model
 
 - `navigate` pushes the current screen and moves to the next one.
+- `replace` swaps the current screen without growing the stack. Previous screens stay reachable through back, and screens ahead stay reachable through forward.
 - `reset` clears the stack and starts again at the given screen. It replaces the current browser entry and marks the older ones stale, so back and forward skip them and return to the current stack.
 - `goBack` uses the browser's back button. At the first screen it calls `onRootBack` when provided, which lets a desktop shell close its window.
 - Browser back and forward move through the stack, params included. They do not push new entries.
@@ -124,6 +125,7 @@ Returns:
 | `params` | Params of the screen passed to `useNav`. Pass the screen name to get a precise type. |
 | `history` | Screens visited before the current one, newest last. Readonly. |
 | `navigate(screen, params?)` | Pushes the current screen and moves to `screen`. `params` is required when the screen declares them. |
+| `replace(screen, params?)` | Replaces the current screen without growing the stack. `params` is required when the screen declares them. |
 | `reset(screen, params?)` | Clears the stack and starts over at `screen`. |
 | `goBack()` | Moves back one screen, or calls `onRootBack` at the first screen. |
 

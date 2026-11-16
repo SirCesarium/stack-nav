@@ -23,6 +23,7 @@ export function createStackRouter<R extends BaseRoutes>(
 
   const actions: RouterActions<R> = {
     navigate: store.navigate,
+    replace: store.replace,
     reset: store.reset,
     goBack: store.goBack,
   };

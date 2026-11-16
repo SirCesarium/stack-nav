@@ -22,7 +22,7 @@ export type ScreenParams<R extends BaseRoutes, T extends keyof R> = [
     : NonNullable<R[T]>;
 
 /**
- * Arguments accepted by `navigate` and `reset`.
+ * Arguments accepted by `navigate`, `replace` and `reset`.
  *
  * Screens whose params include `undefined` can be called without params; the
  * rest require them.
@@ -68,6 +68,12 @@ export interface RouterOptions {
 export interface RouterActions<R extends BaseRoutes> {
   /** Pushes the current screen and moves to `screen`. */
   navigate: <T extends keyof R>(...args: NavigateArgs<R, T>) => void;
+
+  /**
+   * Replaces the current screen without growing the stack. Earlier screens
+   * stay reachable through back; screens ahead stay reachable through forward.
+   */
+  replace: <T extends keyof R>(...args: NavigateArgs<R, T>) => void;
 
   /** Clears the stack and starts over at `screen`. */
   reset: <T extends keyof R>(...args: NavigateArgs<R, T>) => void;
