@@ -1,6 +1,6 @@
 {
   "name": "stack-nav",
-  "version": "2.0.1",
+  "version": "2.1.0",
   "description": "Ultra-lightweight state-based router for React with strict TypeScript support.",
   "type": "module",
   "sideEffects": false,
