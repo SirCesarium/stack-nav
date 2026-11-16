@@ -167,15 +167,15 @@ describe("stack-nav", () => {
     }
   });
 
-  test("resetNavigate clears history and navigates to new screen", async () => {
+  test("reset clears history and navigates to new screen", async () => {
     const App = () => {
-      const { currentScreen, history, navigate, resetNavigate } = useNav();
+      const { currentScreen, history, navigate, reset } = useNav();
       return (
         <div>
           <span data-testid="screen">{currentScreen}</span>
           <span data-testid="history-length">{history.length}</span>
           <button onClick={() => navigate("profile", { id: 1 })}>Go Profile</button>
-          <button onClick={() => resetNavigate("home")}>Reset to Home</button>
+          <button onClick={() => reset("home")}>Reset to Home</button>
         </div>
       );
     };
@@ -197,12 +197,12 @@ describe("stack-nav", () => {
     expect(screen.getByTestId("history-length").textContent).toBe("0");
   });
 
-  test("resetNavigate replaces browser history state", async () => {
+  test("reset replaces browser history state", async () => {
     const replaceStateSpy = vi.spyOn(window.history, "replaceState");
 
     const App = () => {
-      const { resetNavigate } = useNav();
-      return <button onClick={() => resetNavigate("profile", { id: 42 })}>Reset</button>;
+      const { reset } = useNav();
+      return <button onClick={() => reset("profile", { id: 42 })}>Reset</button>;
     };
 
     render(<App />);

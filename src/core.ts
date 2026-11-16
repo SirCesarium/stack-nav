@@ -59,7 +59,7 @@ export function createRouterStore<R extends BaseRoutes>(
     listeners.forEach((l) => l());
   };
 
-  const resetNavigate = <T extends keyof R>(
+  const reset = <T extends keyof R>(
     screen: T,
     params?: R[T],
     isExternal = false,
@@ -91,5 +91,5 @@ export function createRouterStore<R extends BaseRoutes>(
     });
   }
 
-  return { subscribe, getSnapshot, navigate, goBack, resetNavigate };
+  return { subscribe, getSnapshot, navigate, goBack, reset };
 }
