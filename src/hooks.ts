@@ -8,6 +8,13 @@ import type {
   ScreenParams,
 } from "./types";
 
+/**
+ * Builds the store and returns the `useNav` hook.
+ *
+ * Create one router per `window`: every instance listens to `popstate` and
+ * writes the same `history.state`, so a second router would overwrite the
+ * first.
+ */
 export function createStackRouter<R extends BaseRoutes>(
   initialScreen: keyof R,
   options: RouterOptions = {},

@@ -106,7 +106,7 @@ export const App = () => {
 
 ### `createStackRouter<Routes>(initialScreen, options?)`
 
-Builds the store and returns the `useNav` hook. Call it once, at module level.
+Builds the store and returns the `useNav` hook. Call it once, at module level. Use one router per window: every instance listens to `popstate` and writes the same `history.state`, so a second router would overwrite the first.
 
 `options`:
 
