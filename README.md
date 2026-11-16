@@ -12,17 +12,13 @@ State-based navigation for React apps that don't need URLs.
 
 ## What it is
 
-stack-nav keeps a stack of screens and their params, and connects the browser's back and forward buttons to that stack. No URL parsing, no route patterns.
-
-> Zero deps, and the ESM build is `1.2 kB` gzipped.
-
-`createStackRouter` returns a hook with the current screen, its params, and the actions to move between screens. Params are checked at compile time, so a missing one fails the build instead of the runtime.
+stack-nav is a navigation library for React apps that don't use URLs. It has no runtime dependencies and manages the active screen, that screen's params, and the screens the user visited.
 
 ## When to use it
 
 stack-nav is not a URL router. It covers apps where a URL router adds work without adding anything:
 
-- Tauri and Electron windows, where there is no address bar.
+- Tauri and Electron windows, where there is no address bar and other router libraries are bloated/overkill.
 - Small tools with a handful of screens: a wizard, a settings flow, an import dialog.
 - Prototypes that would otherwise hold the current screen in `useState` and render it with a switch.
 
@@ -36,7 +32,7 @@ bun add stack-nav
 npm install stack-nav
 ```
 
-React 18 or 19 is the only peer dependency.
+React 18 or 19 is the only peer dependency. The ESM build is `1.2 kB` gzipped.
 
 ## Quick start
 
