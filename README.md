@@ -90,12 +90,12 @@ export const App = () => {
 };
 ```
 
-`RouterView` mounts the matching screen as a component, so each screen keeps its own hooks and state. Unknown screen names render `fallback`.
+`RouterView` mounts the matching screen as a component, so each screen keeps its own hooks and state. Screens receive no props; they read their params with `useNav("profile")`. Unknown screen names render `fallback`.
 
 ## Navigation model
 
 - `navigate` pushes the current screen and moves to the next one.
-- `reset` clears the stack and starts again at the given screen. It replaces the current browser entry, so back cannot return to the previous stack.
+- `reset` clears the stack and starts again at the given screen. It replaces the current browser entry and marks the older ones stale, so back and forward skip them and return to the current stack.
 - `goBack` uses the browser's back button. At the first screen it calls `onRootBack` when provided, which lets a desktop shell close its window.
 - Browser back and forward move through the stack, params included. They do not push new entries.
 - Entries written by other code are ignored and reclaimed, so a foreign `history.state` cannot change the router.
