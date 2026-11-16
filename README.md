@@ -127,7 +127,7 @@ Returns:
 | `reset(screen, params?)` | Clears the stack and starts over at `screen`. |
 | `goBack()` | Moves back one screen, or calls `onRootBack` at the first screen. |
 
-The screen argument only selects the type of `params`. It does not change the current screen or read the current screen's params.
+The screen argument only selects the type of `params`. It does not change the current screen. Read `params` inside the component rendered for that screen: `params` always comes from the current screen, so a screen still mounted during a transition can briefly see another screen's params.
 
 ### `<RouterView>`
 

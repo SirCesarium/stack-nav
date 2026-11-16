@@ -93,6 +93,10 @@ export type NavigationView<R extends BaseRoutes> = {
  * The optional screen only selects the type of `params`: it does not change
  * the current screen. Pass the screen a component is rendered for so its
  * params are typed precisely.
+ *
+ * `params` always mirrors the current screen. Read it inside the component
+ * rendered for that screen only: during a transition, a screen that is still
+ * mounted can briefly observe another screen's params.
  */
 export type NavigationHook<R extends BaseRoutes> = <T extends keyof R = never>(
   screen?: T,
