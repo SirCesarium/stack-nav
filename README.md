@@ -14,23 +14,33 @@ State-based navigation for React apps that don't need URLs.
 
 stack-nav keeps a stack of screens and their params, and connects the browser's back and forward buttons to that stack. No URL parsing, no route patterns.
 
-> Zero deps, and the ESM build is `731 bytes` gzipped.
+> Zero deps, and the ESM build is `1.2 kB` gzipped.
 
-`createStackRouter` returns a hook with the current screen, its params, and the actions to move between screens. Params are checked at compile time: if you skip one a screen requires, the build fails instead of the runtime.
+`createStackRouter` returns a hook with the current screen, its params, and the actions to move between screens. Params are checked at compile time, so a missing one fails the build instead of the runtime.
 
 ## When to use it
 
-stack-nav is not a URL router, and it does not try to become one. It covers the cases where a URL router adds work without adding anything:
+stack-nav is not a URL router. It covers apps where a URL router adds work without adding anything:
 
-- Tauri and Electron windows, where there is no address bar to fill.
+- Tauri and Electron windows, where there is no address bar.
 - Small tools with a handful of screens: a wizard, a settings flow, an import dialog.
-- Prototypes where you would otherwise hold the current screen in `useState` and write a switch to render it.
+- Prototypes that would otherwise hold the current screen in `useState` and render it with a switch.
 
-If you need deep links, shareable URLs, bookmarking or server-side rendering, use a URL router. stack-nav keeps the history in memory and mirrors it into `window.history.state`; screens never get a path.
+If the app needs links users can share or type, use a URL router. stack-nav keeps the stack in memory and mirrors it into `window.history.state`; screens never get a path.
+
+## Install
+
+```bash
+bun add stack-nav
+# or
+npm install stack-nav
+```
+
+React 18 or 19 is the only peer dependency.
 
 ## Quick start
 
-### 1. Define your routes
+### 1. Define the routes
 
 ```typescript
 import { createStackRouter } from "stack-nav";
@@ -43,7 +53,7 @@ type Routes = {
 export const useNav = createStackRouter<Routes>("home");
 ```
 
-`Routes` maps each screen name to the params it takes. Use `undefined` for screens that take none.
+`Routes` maps each screen name to its params. Use `undefined` for screens without params. An `interface Routes` works too.
 
 ### 2. Render the current screen
 
@@ -54,7 +64,9 @@ import { useNav } from "./nav";
 const Home = () => {
   const { navigate } = useNav();
 
-  return <button onClick={() => navigate("profile", { id: 1 })}>Open profile</button>;
+  return (
+    <button onClick={() => navigate("profile", { id: 1 })}>Open profile</button>
+  );
 };
 
 const Profile = () => {
@@ -82,38 +94,73 @@ export const App = () => {
 };
 ```
 
+`RouterView` mounts the matching screen as a component, so each screen keeps its own hooks and state. Unknown screen names render `fallback`.
+
+## Navigation model
+
+- `navigate` pushes the current screen and moves to the next one.
+- `reset` clears the stack and starts again at the given screen. It replaces the current browser entry, so back cannot return to the previous stack.
+- `goBack` uses the browser's back button. At the first screen it calls `onRootBack` when provided, which lets a desktop shell close its window.
+- Browser back and forward move through the stack, params included. They do not push new entries.
+- Entries written by other code are ignored and reclaimed, so a foreign `history.state` cannot change the router.
+- Reloading the page restores the stack from `history.state`.
+- On the server, the router renders the initial screen. Hydration then syncs to the stored stack.
+
 ## API
 
-`createStackRouter<Routes>(initialScreen)` builds the store once and returns `useNav`.
+### `createStackRouter<Routes>(initialScreen, options?)`
 
-`useNav(screen?)` returns:
+Builds the store and returns the `useNav` hook. Call it once, at module level.
+
+`options`:
+
+| Option | What it does |
+| --- | --- |
+| `onRootBack` | Called by `goBack` when the stack is already at its first screen. Default: delegate to the browser. |
+
+### `useNav(screen?)`
+
+Returns:
 
 | Member | What it does |
 | --- | --- |
-| `currentScreen` | The active screen, typed as `keyof Routes`. |
-| `params` | Params of the screen you passed to `useNav`. The name is what gives `params` its type. |
-| `history` | Screens visited before the current one, newest last. |
-| `navigate(screen, params)` | Pushes the current screen onto the stack and moves to `screen`. `params` is required when `screen` declares them. |
-| `resetNavigate(screen, params)` | Replaces the state and clears the stack, so `goBack` has nowhere to go. |
-| `goBack()` | Pops the last entry off the stack. Does nothing when the stack is empty. |
+| `currentScreen` | Active screen, typed as `keyof Routes`. |
+| `params` | Params of the screen passed to `useNav`. Pass the screen name to get a precise type. |
+| `history` | Screens visited before the current one, newest last. Readonly. |
+| `navigate(screen, params?)` | Pushes the current screen and moves to `screen`. `params` is required when the screen declares them. |
+| `reset(screen, params?)` | Clears the stack and starts over at `screen`. |
+| `goBack()` | Moves back one screen, or calls `onRootBack` at the first screen. |
 
-`<RouterView>` props:
+The screen argument only selects the type of `params`. It does not change the current screen or read the current screen's params.
+
+### `<RouterView>`
 
 | Prop | What it does |
 | --- | --- |
-| `currentScreen` | The screen to render. |
-| `screens` | Map of screen name to a component or a function returning React nodes. |
-| `fallback` | Rendered when `currentScreen` is missing from `screens`. Defaults to `null`. |
+| `currentScreen` | Screen to render. |
+| `screens` | Map of screen name to component. |
+| `fallback` | Rendered when `currentScreen` is not in `screens`. Defaults to `null`. |
 
-## Install
+## Auth and redirects
 
-```bash
-bun add stack-nav
-# or
-npm install stack-nav
+Use `reset` when the next screen should not lead back into the previous flow:
+
+```tsx
+const { reset } = useNav();
+
+const signOut = () => {
+  reset("home");
+};
 ```
 
-React 18 or 19 is the only peer dependency.
+After sign-out, browser back does not reopen the authenticated screens.
+
+## Upgrading from 1.x
+
+- `resetNavigate` is now `reset`. It clears the stack and also replaces the current browser entry.
+- `goBack` follows browser history. At the first screen it leaves the page unless `onRootBack` is set.
+- `RouterView` mounts screens as components. The old `() => <Screen />` form creates a new component on every render and remounts the screen.
+- `Routes` accepts `interface` declarations.
 
 ## Development
 
