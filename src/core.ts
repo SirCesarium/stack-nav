@@ -8,8 +8,6 @@ import type {
 
 const SNAPSHOT_VERSION = 2;
 
-// Browsers can refuse to move through history programmatically; cap skips so a
-// failed navigation cannot trap the router in a loop.
 const MAX_SKIPS = 32;
 
 interface StackEntry<R extends BaseRoutes> {
@@ -121,9 +119,7 @@ export function createRouterStore<R extends BaseRoutes>(
 
   let state = build();
 
-  // Hydration must start from what the server rendered, not from the restored
-  // stack: the browser entry is invisible to the server render.
-  const serverState: NavigationState<R> = {
+  const serverRenderedState: NavigationState<R> = {
     currentScreen: initialScreen,
     params: {},
     history: [],
@@ -152,7 +148,7 @@ export function createRouterStore<R extends BaseRoutes>(
 
   const getSnapshot = () => state;
 
-  const getServerSnapshot = () => serverState;
+  const getServerSnapshot = () => serverRenderedState;
 
   const notify = () => {
     state = build();
