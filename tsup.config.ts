@@ -6,7 +6,7 @@ export default defineConfig({
   dts: true,
   clean: true,
   minify: true,
-  external: ["react", "react-dom"],
+  external: ["react"],
   sourcemap: true,
   treeshake: true,
   splitting: false,
