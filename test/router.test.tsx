@@ -127,6 +127,46 @@ describe("stack-nav", () => {
     expect(screen.getByTestId("fallback")).toBeTruthy();
   });
 
+  test("RouterView keeps hooks isolated when switching screens", () => {
+    const Home = () => {
+      const [visits] = React.useState(1);
+      return <div>HomeView {visits}</div>;
+    };
+    const Profile = () => {
+      const [visits] = React.useState(1);
+      const [label] = React.useState("profile");
+      return <div>ProfileView {visits} {label}</div>;
+    };
+    const screens = {
+      home: Home,
+      profile: Profile,
+      empty: () => <div>EmptyView</div>,
+    };
+
+    const { rerender } = render(
+      <RouterView<Routes> currentScreen="home" screens={screens} />,
+    );
+    expect(screen.getByText(/HomeView/)).toBeTruthy();
+
+    rerender(<RouterView<Routes> currentScreen="profile" screens={screens} />);
+    expect(screen.getByText(/ProfileView/)).toBeTruthy();
+  });
+
+  test("RouterView ignores keys inherited from Object.prototype", () => {
+    for (const key of ["__proto__", "constructor", "toString"]) {
+      const { unmount } = render(
+        <RouterView<any>
+          currentScreen={key}
+          screens={{}}
+          fallback={<div data-testid="fallback">Not Found</div>}
+        />,
+      );
+
+      expect(screen.getByTestId("fallback")).toBeTruthy();
+      unmount();
+    }
+  });
+
   test("resetNavigate clears history and navigates to new screen", async () => {
     const App = () => {
       const { currentScreen, history, navigate, resetNavigate } = useNav();

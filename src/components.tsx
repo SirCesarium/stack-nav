@@ -1,30 +1,37 @@
-import React from "react";
+import type { ComponentType, ReactNode } from "react";
 import type { BaseRoutes } from "./types";
 
-interface RouterViewProps<R extends BaseRoutes> {
+type ScreenProps = Record<never, never>;
+
+export interface RouterViewProps<R extends BaseRoutes> {
   currentScreen: keyof R;
   screens: {
-    [K in keyof R]: React.ComponentType<any> | (() => React.ReactNode);
+    [K in keyof R]: ComponentType<ScreenProps>;
   };
-  fallback?: React.ReactNode;
+  fallback?: ReactNode;
 }
 
+/**
+ * Renders the component registered for `currentScreen`, or `fallback` when the
+ * screen is missing.
+ *
+ * Screens are always mounted as components, so each one owns its hooks and
+ * state. `fallback` covers unknown screens, including keys inherited from
+ * `Object.prototype`.
+ */
 export function RouterView<R extends BaseRoutes>({
   currentScreen,
   screens,
   fallback = null,
 }: RouterViewProps<R>) {
-  const Component = screens[currentScreen];
-  if (!Component) return <>{fallback}</>;
+  const Screen: ComponentType<ScreenProps> | undefined = Object.hasOwn(
+    screens,
+    currentScreen,
+  )
+    ? screens[currentScreen]
+    : undefined;
 
-  if (
-    typeof Component === "function" &&
-    !(Component.prototype instanceof React.Component)
-  ) {
-    const RenderFn = Component as () => React.ReactNode;
-    return <>{RenderFn()}</>;
-  }
+  if (!Screen) return <>{fallback}</>;
 
-  const ReactComponent = Component as React.ComponentType<any>;
-  return <ReactComponent />;
+  return <Screen />;
 }
